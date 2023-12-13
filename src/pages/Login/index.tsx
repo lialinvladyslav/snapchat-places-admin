@@ -4,6 +4,8 @@ import _ from "lodash";
 import firebase from "../../../firebase-config";
 import { Link } from "react-router-dom";
 import { useNavigate, useLocation } from 'react-router-dom';
+import logoDark from "/src/assets/images/logo/logo-dark.svg";
+import svgImage from "/src/assets/images/svg/5.svg";
 
 function Main() {
   const navigate = useNavigate();
@@ -36,7 +38,7 @@ function Main() {
           <div className="relative z-10 flex flex-col justify-center w-full h-full py-2 lg:py-32">
             <Link className="mb-5.5 mx-auto" to="/">
               <img
-                src="/src/assets/images/logo/logo-dark.svg"
+                src={logoDark}
                 alt="Logo"
                 width={176}
                 height={32}
@@ -221,7 +223,7 @@ function Main() {
           ])}
         >
           <div className="sticky top-0 z-10 flex-col justify-center hidden h-screen ml-16 lg:flex xl:ml-28 2xl:ml-36">
-            <img src="/src/assets/images/svg/5.svg" alt="" />
+            <img src={svgImage} alt="" />
           </div>
         </div>
       </div>

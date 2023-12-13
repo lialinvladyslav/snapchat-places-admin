@@ -1,7 +1,6 @@
 import Lucide from "../../base-components/Lucide";
 import users from "../../fakers/users";
 import Button from "../../base-components/Button";
-import Litepicker from "../../base-components/Litepicker";
 import { FormInput, FormSelect, FormCheck } from "../../base-components/Form";
 import { useState } from "react";
 import clsx from "clsx";
@@ -168,21 +167,6 @@ function Main() {
                     </div>
                   </div>
                 </label>
-                <div className="flex-1 w-full mt-3 xl:mt-0">
-                  <Litepicker
-                    value={dateOfBirth}
-                    onChange={setDateOfBirth}
-                    options={{
-                      autoApply: false,
-                      dropdowns: {
-                        minYear: 1990,
-                        maxYear: null,
-                        months: true,
-                        years: true,
-                      },
-                    }}
-                  />
-                </div>
               </div>
               <div className="flex-col block pt-5 mt-5 xl:items-center sm:flex xl:flex-row first:mt-0 first:pt-0">
                 <label className="inline-block mb-2 sm:mb-0 sm:mr-5 sm:text-right xl:w-60 xl:mr-14">

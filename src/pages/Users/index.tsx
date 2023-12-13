@@ -22,8 +22,8 @@ interface Response {
   followers?: number;
   followings?: number;
   avatar?: string;
-  status?: bool;
-  privacy?: bool;
+  status?: boolean;
+  privacy?: boolean;
 }
 
 function Main() {

@@ -16,6 +16,7 @@ import SimpleBar from "simplebar";
 import { Menu } from "../../base-components/Headless";
 import NotificationsPanel from "../../components/NotificationsPanel";
 import { getAuth, signOut } from 'firebase/auth';
+import defaultAvatar from "/src/assets/images/avatar.png";
 
 function Main() {
 
@@ -410,7 +411,7 @@ function Main() {
                   <Menu.Button className="overflow-hidden rounded-full w-[36px] h-[36px] border-[3px] border-white/[0.15] image-fit">
                     <img
                       alt="Tailwise - Admin Dashboard Template"
-                      src="/src/assets/images/avatar.png"
+                      src={defaultAvatar}
                     />
                   </Menu.Button>
                   <Menu.Items className="w-56 mt-1">
