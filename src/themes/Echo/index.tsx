@@ -18,6 +18,7 @@ import NotificationsPanel from "../../components/NotificationsPanel";
 import { getAuth, signOut } from 'firebase/auth';
 import defaultAvatar from "/src/assets/images/avatar.png";
 
+
 function Main() {
 
   const dispatch = useAppDispatch();
