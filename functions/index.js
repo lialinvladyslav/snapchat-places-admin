@@ -1,19 +1,63 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+exports.getAllUsersInfo = functions.https.onCall(async (data, context) => {
+  // Ensure the user is authenticated
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+  try {
+    const db = admin.database();
+    const auth = admin.auth();
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+    // Retrieve all users from Firebase Realtime Database
+    const usersSnapshot = await db.ref('Users').once('value');
+    const usersData = usersSnapshot.val();
+
+    // Prepare an array to hold the combined user info
+    const allUsersInfo = [];
+
+    for (const userKey in usersData) {
+      const uid = usersData[userKey].uid;
+      // Get user auth info using 'uid'
+      const userInfo = await auth.getUser(uid);
+      const provider = userInfo.providerData[0].providerId;
+      const identifier = userInfo.providerData[0].uid;
+      const status = usersData[userKey].disabled;
+      const privacy = usersData[userKey].isPublic;
+      const name = usersData[userKey].username;
+      const avatar = usersData[userKey].avatar;
+      // Calculate follower_numbers from "followers" ref
+      const followersSnapshot = await db.ref('Followings').orderByChild('follower').equalTo(userKey).once('value');
+      const followersData = followersSnapshot.val() || {};
+      const followerNumbers = Object.keys(followersData).length;
+      // Calculate follower_numbers from "followers" ref
+      const followingsSnapshot = await db.ref('Followings').orderByChild('following').equalTo(userKey).once('value');
+      const followingsData = followingsSnapshot.val() || {};
+      const followingNumbers = Object.keys(followingsData).length;
+
+      // Construct the user information object
+      const userDetails = {
+        id: uid,
+        provider,
+        identifier,
+        status,
+        privacy,
+        name,
+        avatar,
+        followers: followerNumbers,
+        followings: followingNumbers,
+      };
+
+      allUsersInfo.push(userDetails);
+    }
+
+    // Return the combined users information
+    return { users: allUsersInfo };
+  } catch (error) {
+    console.error("Error fetching user data:", error.message);
+    throw new functions.https.HttpsError('unknown', error.message, error);
+  }
+});

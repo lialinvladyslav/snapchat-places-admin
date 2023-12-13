@@ -1,4 +1,3 @@
-import { Analytics } from "@vercel/analytics/react";
 import { selectPageLoader } from "../stores/pageLoaderSlice";
 import { useAppSelector } from "../stores/hooks";
 import { Transition } from "@headlessui/react";
@@ -9,7 +8,6 @@ function Main() {
 
   return (
     <div>
-      <Analytics />
       <Transition
         show={!pageLoader}
         enter="transition-opacity duration-75"

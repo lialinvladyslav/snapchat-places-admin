@@ -1,19 +1,20 @@
-import Lucide from "../../base-components/Lucide";
-import { Menu } from "../../base-components/Headless";
 import Button from "../../base-components/Button";
-import products from "../../fakers/products";
 import {
   FormInline,
   FormInput,
   FormLabel,
   FormSelect,
 } from "../../base-components/Form";
-import * as xlsx from "xlsx";
 import { useEffect, useRef, createRef, useState } from "react";
 import { createIcons, icons } from "lucide";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import { stringToHTML } from "../../utils/helper";
-import { array } from "yup";
+import firebase from "../../../firebase-config";
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
+
+
+const functions = getFunctions(firebase);
+connectFunctionsEmulator(functions, "localhost", 5001);
 
 interface Response {
   id?: string;
@@ -24,6 +25,10 @@ interface Response {
   avatar?: string;
   status?: boolean;
   privacy?: boolean;
+}
+
+interface ResultData {
+  users: Response[];
 }
 
 function Main() {
@@ -38,60 +43,19 @@ function Main() {
     value: "",
   });
   useEffect(() => {
-    setTimeout(() => {
-      if (tabulator.current) {
-        tabulator.current.setData([
-          {
-            "id": "21",
-            "name": "Samsungffffffffffffffffff",
-            "category": "Electronic",
-            "followers": 195,
-            "followings": 50,
-            "provider": "google",
-            "identifier": "hello@gmail.com",
-            "status": true,
-            "privacy": true,
-            "avatar": "/src/assets/images/users/user3-50x50.jpg",
-          },
-          {
-            "id": "22",
-            "name": "Samsung",
-            "category": "Smartphone & Tablet",
-            "followers": 139,
-            "followings": 50,
-            "provider": "google",
-            "identifier": "hello@gmail.com",
-            "status": false,
-            "privacy": false,
-            "avatar": "/src/assets/images/users/user6-50x50.jpg",
-          },
-          {
-            "id": "23",
-            "name": "Apple",
-            "category": "PC & Laptop",
-            "followers": 89,
-            "followings": 50,
-            "provider": "google",
-            "identifier": "hello@gmail.com",
-            "status": false,
-            "privacy": true,
-            "avatar": "/src/assets/images/users/user7-50x50.jpg",
-          },
-          {
-            "id": "24",
-            "name": "Sony",
-            "category": "Photography",
-            "followers": 50,
-            "followings": 50,
-            "provider": "phone",
-            "identifier": "hello@gmail.com",
-            "status": false,
-            "privacy": true,
-            "avatar": "/src/assets/images/users/user4-50x50.jpg",
-          },]);
+    const getAllUsersInfo = httpsCallable(functions, 'getAllUsersInfo');
+    getAllUsersInfo().then(
+      result => {
+        const typedResult = result.data as ResultData;
+        if (tabulator.current) {
+          tabulator.current.setData(typedResult.users);
+        }
       }
-
-    }, 1000);
+    ).catch(err => {
+      // Getting the error code
+      console.error(`Error code: ${err.code}`);
+      console.error(`Error message: ${err.message}`);
+    });
   }, [])
 
 
