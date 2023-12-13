@@ -1,0 +1,25 @@
+html {
+  /* scroll-behavior: smooth;
+  background-color: theme("colors.slate.100" / 50%); */
+  &.dark {
+    /* background-color: theme("colors.darkmode.800"); */
+    /* body {
+      color: theme("colors.slate.300");
+      *,
+      ::before,
+      ::after {
+        border-color: theme("colors.white" / 5%);
+      }
+    } */
+  }
+  body {
+    letter-spacing: theme("letterSpacing.wide");
+    font-size: theme("fontSize.sm");
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: theme("fontFamily.public-sans");
+    /* font-family: theme("fontFamily.dm-sans"); */
+    color: theme("colors.slate.600");
+    line-height: theme("lineHeight.5");
+  }
+}
