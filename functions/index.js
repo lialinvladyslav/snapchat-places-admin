@@ -61,3 +61,39 @@ exports.getAllUsersInfo = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('unknown', error.message, error);
   }
 });
+
+
+exports.toggleUserStatus = functions.https.onCall(async (data, context) => {
+  // Ensure the user is authenticated and an admin.
+  if (!context.auth) {
+    console.log("-----------");
+    throw new functions.https.HttpsError('unauthenticated', 'Request had invalid credentials.');
+  }
+
+  const { userUid, status } = data;
+  console.log("+++++++++");
+  console.log(userUid, status);
+
+  try {
+    // Update the disabled field in Firebase Authentication
+    await admin.auth().updateUser(userUid, { disabled: !status });
+
+    // Update the isDisabled field in the Users database reference
+    const snapshot = await admin.database().ref(`Users`).orderByChild('uid').equalTo(userUid).once('value');
+    // If we found the user, update their isDisabled status
+    if (snapshot.exists()) {
+      const updates = {};
+      snapshot.forEach((childSnapshot) => {
+        updates[`${childSnapshot.key}/disabled`] = !status;
+      });
+      await admin.database().ref(`Users`).update(updates);
+
+      return { result: `User ${!status ? "disabled" : "enabled"} successfully.` };
+    } else {
+      throw new functions.https.HttpsError('not-found', 'User not found in the database.');
+    }
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw new functions.https.HttpsError('unknown', error.message, error);
+  }
+});
