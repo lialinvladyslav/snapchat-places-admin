@@ -10,14 +10,12 @@ import {
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
 import { FormattedMenu, linkTo, nestedMenu, enter, leave } from "./side-menu";
 import Lucide from "../../base-components/Lucide";
-import users from "../../fakers/users";
 import clsx from "clsx";
 import SimpleBar from "simplebar";
 import { Menu } from "../../base-components/Headless";
-import NotificationsPanel from "../../components/NotificationsPanel";
 import { getAuth, signOut } from 'firebase/auth';
 import defaultAvatar from "/src/assets/images/avatar.png";
-
+import logoImage from "/src/assets/images/logo/logo_white.png";
 
 function Main() {
 
@@ -27,7 +25,6 @@ function Main() {
     localStorage.setItem("compactMenu", val.toString());
     dispatch(setCompactMenuStore(val));
   };
-  const [notificationsPanel, setNotificationsPanel] = useState(false);
   const [compactMenuOnHover, setCompactMenuOnHover] = useState(false);
   const [activeMobileMenu, setActiveMobileMenu] = useState(false);
   const location = useLocation();
@@ -148,18 +145,12 @@ function Main() {
             ])}
           >
             <a
-              href=""
+              href="/"
               className="flex items-center transition-[margin] duration-300 group-[.side-menu--collapsed]:xl:ml-2 group-[.side-menu--collapsed.side-menu--on-hover]:xl:ml-0"
             >
-              <div className="flex items-center justify-center w-[34px] rounded-lg h-[34px] bg-gradient-to-b from-theme-1 to-theme-2/80 transition-transform ease-in-out group-[.side-menu--collapsed.side-menu--on-hover]:xl:-rotate-180">
-                <div className="w-[16px] h-[16px] relative -rotate-45 [&_div]:bg-white">
-                  <div className="absolute w-[21%] left-0 inset-y-0 my-auto rounded-full opacity-50 h-[75%]"></div>
-                  <div className="absolute w-[21%] inset-0 m-auto h-[120%] rounded-full"></div>
-                  <div className="absolute w-[21%] right-0 inset-y-0 my-auto rounded-full opacity-50 h-[75%]"></div>
-                </div>
-              </div>
+              <img src={logoImage} className="h-10" alt="logo" />
               <div className="ml-3.5 group-[.side-menu--collapsed.side-menu--on-hover]:xl:opacity-100 group-[.side-menu--collapsed]:xl:opacity-0 transition-opacity font-medium">
-                ECHO
+                SnapAdmin
               </div>
             </a>
             <a
@@ -376,11 +367,7 @@ function Main() {
               </div>
               {/* BEGIN: Breadcrumb */}
               <Breadcrumb light className="flex-1 hidden xl:block">
-                <Breadcrumb.Link to="/">App</Breadcrumb.Link>
-                <Breadcrumb.Link to="/">Dashboards</Breadcrumb.Link>
-                <Breadcrumb.Link to="/" active={true}>
-                  Analytics
-                </Breadcrumb.Link>
+                <Breadcrumb.Link to="/">Snapchat Places</Breadcrumb.Link>
               </Breadcrumb>
               {/* END: Breadcrumb */}
 
@@ -397,16 +384,7 @@ function Main() {
                   >
                     <Lucide icon="Expand" className="w-[18px] h-[18px]" />
                   </a>
-                  <a
-                    href=""
-                    className="p-2 text-white rounded-full hover:bg-white/5"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setNotificationsPanel(true);
-                    }}
-                  >
-                    <Lucide icon="Bell" className="w-[18px] h-[18px]" />
-                  </a>
+                  
                 </div>
                 <Menu className="ml-5">
                   <Menu.Button className="overflow-hidden rounded-full w-[36px] h-[36px] border-[3px] border-white/[0.15] image-fit">
@@ -433,10 +411,6 @@ function Main() {
                   </Menu.Items>
                 </Menu>
               </div>
-              <NotificationsPanel
-                notificationsPanel={notificationsPanel}
-                setNotificationsPanel={setNotificationsPanel}
-              />
               {/* END: Notification & User Menu */}
             </div>
           </div>

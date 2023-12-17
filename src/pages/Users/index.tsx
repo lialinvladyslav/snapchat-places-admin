@@ -8,13 +8,12 @@ import {
 import { useEffect, useRef, createRef, useState } from "react";
 import { createIcons, icons } from "lucide";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
-import { stringToHTML } from "../../utils/helper";
+import { Dialog } from "../../base-components/Headless";
 import firebase from "../../../firebase-config";
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
-
+import TinySlider from "../../base-components/TinySlider";
 
 const functions = getFunctions(firebase);
-connectFunctionsEmulator(functions, "localhost", 5001);
 
 interface Response {
   id?: string;
@@ -31,24 +30,67 @@ interface ResultData {
   users: Response[];
 }
 
+interface Story {
+  placeDisplayName: string;
+  formattedAddress: string;
+  url: string;
+  contentType: string;
+}
+
+interface StoriesData {
+  stories: Story[];
+}
+
 function Main() {
   const tableRef = createRef<HTMLDivElement>();
   const tabulator = useRef<Tabulator>();
-
-
-
   const [filter, setFilter] = useState({
     field: "name",
     type: "like",
     value: "",
   });
+  const [userData, setUserData] = useState<Array<Response>>([]);
+  const [storiesData, setStoriesData] = useState<Array<Story>>([])
+  const [showImages, setShowImages] = useState(false);
+  const updateStatus = (userId?: string, status?: boolean) => {
+    const getAllUsersInfo = httpsCallable(functions, 'getAllUsersInfo');
+    getAllUsersInfo().then(
+      result => {
+        const typedResult = result.data as ResultData;
+        if (tabulator.current) {
+          setUserData(typedResult.users);
+        }
+      }
+    ).catch(err => {
+      // Getting the error code
+      console.error(`Error code: ${err.code}`);
+      console.error(`Error message: ${err.message}`);
+    });
+  }
+
+  const showImageModal = (userId?: string) => {
+    const getUsersStories = httpsCallable(functions, 'getUsersStories');
+    getUsersStories({ userUid: userId }).then(
+      result => {
+        const typedResult = result.data as StoriesData;
+        setStoriesData(typedResult.stories);
+        setShowImages(true);
+      }
+    ).catch(err => {
+      // Getting the error code
+      console.error(`Error code: ${err.code}`);
+      console.error(`Error message: ${err.message}`);
+    });
+  }
+
+
   useEffect(() => {
     const getAllUsersInfo = httpsCallable(functions, 'getAllUsersInfo');
     getAllUsersInfo().then(
       result => {
         const typedResult = result.data as ResultData;
         if (tabulator.current) {
-          tabulator.current.setData(typedResult.users);
+          setUserData(typedResult.users);
         }
       }
     ).catch(err => {
@@ -58,6 +100,11 @@ function Main() {
     });
   }, [])
 
+  useEffect(() => {
+    if (tabulator.current) {
+      tabulator.current.setData(userData);
+    }
+  }, [userData])
 
   const initTabulator = () => {
     if (tableRef.current) {
@@ -71,11 +118,11 @@ function Main() {
         dataLoader: true,
         dataLoaderLoading: '<div>hello</div>',
         pagination: true,
-        paginationSize: 3,
-        paginationSizeSelector: [3, 6, 9, 12],
+        paginationSize: 5,
+        paginationSizeSelector: [5, 10, 15, 20],
         layout: "fitColumns",
         responsiveLayout: "collapse",
-        placeholder: "No matching records found",
+        placeholder: "Loading Data",
         columns: [
           {
             title: "",
@@ -161,10 +208,10 @@ function Main() {
             download: false,
             formatter(cell) {
               const response: Response = cell.getData();
-              return `<div class="flex items-center lg:justify-center ${response.status ? "text-success" : "text-danger"
+              return `<div class="flex items-center lg:justify-center ${!response.status ? "text-success" : "text-danger"
                 }">
                 <i data-lucide="check-square" class="w-3.5 h-3.5 stroke-[1.7]"></i>
-                  <div class="ml-1.5 whitespace-nowrap">${response.status ? "Active" : "Inactive"
+                  <div class="ml-1.5 whitespace-nowrap">${!response.status ? "Active" : "Inactive"
                 }</div>
               </div>`;
             },
@@ -190,7 +237,7 @@ function Main() {
           },
           {
             title: "Actions",
-            minWidth: 200,
+            minWidth: 150,
             field: "actions",
             responsive: 1,
             hozAlign: "center",
@@ -199,19 +246,49 @@ function Main() {
             print: false,
             download: false,
             headerSort: false,
+            cellClick: function (e, cell) {
+              const response: Response = cell.getData();
+              const toggleUserStatus = httpsCallable(functions, 'toggleUserStatus');
+              toggleUserStatus({ userUid: response.id, status: response.status }).then(
+                result => {
+                  updateStatus(response.id, response.status);
+                }
+              ).catch(err => {
+                // Getting the error code
+                console.error(`Error code: ${err.code}`);
+                console.error(`Error message: ${err.message}`);
+              });
+            },
             formatter(cell) {
               const response: Response = cell.getData();
-              const a =
-                stringToHTML(`<div class="flex items-center lg:justify-center">
-                  <a class="flex items-center ${!response.status ? "text-black" : "text-danger"
-                  }" href="javascript:;">
-                    ${response.status ? "Disable" : "Active"}
+              return `<div class="flex items-center lg:justify-center">
+                  <a class="flex items-center ${response.status ? "text-black" : "text-danger"
+                }" href="javascript:;">
+                    ${!response.status ? "Disable" : "Active"}
                   </a>
-                </div>`);
-              a.addEventListener("click", function () {
-                console.log(response.id);
-              });
-              return a;
+                </div>`;
+            },
+          },
+          {
+            title: "Stories",
+            minWidth: 100,
+            field: "stories",
+            responsive: 1,
+            hozAlign: "center",
+            headerHozAlign: "center",
+            vertAlign: "middle",
+            headerSort: false,
+            cellClick: function (e, cell) {
+              const response: Response = cell.getData();
+              showImageModal(response.id);
+            },
+            formatter(cell) {
+              const response: Response = cell.getData();
+              return `<div class="flex items-center lg:justify-center">
+                  <a class="flex items-center  "text-black"}" href="javascript:;">
+                    <i data-lucide="image" class="w-3.5 h-3.5 stroke-[1.7] mr-1.5"></i>
+                  </a>
+                </div>`;
             },
           },
         ],
@@ -270,6 +347,50 @@ function Main() {
 
   return (
     <div className="grid grid-cols-12 gap-y-10 gap-x-6">
+      <Dialog size="xl" open={showImages} onClose={() => {
+        setShowImages(false);
+      }}
+      >
+        <Dialog.Panel className="p-10 mt-24">
+          <div className="mx-6">
+            <TinySlider options={{
+              mode: 'gallery',
+              controls: true,
+              nav: true,
+              autoplay: false,
+              items: 1,
+              responsive: {
+                960: {
+                  items: 3,
+                },
+                600: {
+                  items: 2,
+                },
+              },
+            }}>
+              {storiesData.map((story, index) => {
+                return (
+                  <div className=" px-2" key={index}>
+                    <div className="h-64 overflow-hidden rounded-md image-fit">
+                      {
+                        story.contentType == "image/jpeg"
+                          ? <img alt="Story" src={story.url} />
+                          : <video controls className="h-full aspect-[1]"> <source src={story.url} type="video/mp4" /> </video>
+                      }
+                    </div>
+                    <h4 className="mt-3 text-lg font-medium leading-none text-primary">
+                      {story.placeDisplayName}
+                    </h4>
+                    <h5 className="mt-3 text-md font-medium leading-none text-slate-500">
+                      {story.formattedAddress}
+                    </h5>
+                  </div>
+                );
+              })}
+            </TinySlider>
+          </div>
+        </Dialog.Panel>
+      </Dialog>
       <div className="col-span-12">
         <div className="flex flex-col md:h-10 gap-y-3 md:items-center md:flex-row">
           <div className="text-base font-medium group-[.mode--light]:text-white">
@@ -321,11 +442,6 @@ function Main() {
                   >
                     <option value="like">like</option>
                     <option value="=">=</option>
-                    <option value="<">&lt;</option>
-                    <option value="<=">&lt;=</option>
-                    <option value=">">&gt;</option>
-                    <option value=">=">&gt;=</option>
-                    <option value="!=">!=</option>
                   </FormSelect>
                 </FormInline>
                 <FormInline className="flex-col items-start xl:flex-row xl:items-center gap-y-2">

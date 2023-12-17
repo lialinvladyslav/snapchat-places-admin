@@ -1,11 +1,9 @@
 import { useRoutes } from "react-router-dom";
 import Users from "../pages/Users";
-import Departments from "../pages/Departments";
-import AddUser from "../pages/AddUser";
-import ProfileOverview from "../pages/ProfileOverview";
+import Places from "../pages/Places";
+import Reports from "../pages/Reports";
+import Dashboard from "../pages/Dashboard";
 import Login from "../pages/Login";
-import RegularTable from "../pages/RegularTable";
-import Tabulator from "../pages/Tabulator";
 
 import Layout from "../themes";
 import RequireAuth from "./ProtectedRouter";
@@ -21,29 +19,20 @@ function Router() {
       ),
       children: [
         {
+          path: "",
+          element: <Dashboard />,
+        },
+        {
           path: "users",
           element: <Users />,
         },
         {
-          path: "departments",
-          element: <Departments />,
+          path: "places",
+          element: <Places />,
         },
         {
-          path: "add-user",
-          element: <AddUser />,
-        },
-        {
-          path: "profile-overview",
-          element: <ProfileOverview />,
-        },
-        //components
-        {
-          path: "regular-table",
-          element: <RegularTable />,
-        },
-        {
-          path: "tabulator",
-          element: <Tabulator />,
+          path: "reports",
+          element: <Reports />,
         },
       ],
     },

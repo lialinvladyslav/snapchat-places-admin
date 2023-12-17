@@ -23,43 +23,17 @@ const initialState: SideMenuState = {
       pathname: "/users",
       title: "Users",
     },
+    "BUSINESS MANAGEMENT",
     {
-      icon: "CakeSlice",
-      pathname: "/departments",
-      title: "Departments",
+      icon: "Image",
+      pathname: "/places",
+      title: "Places",
     },
+    "REPORTS MANAGEMENT",
     {
-      icon: "PackagePlus",
-      pathname: "/add-user",
-      title: "Add User",
-    },
-    "PERSONAL DASHBOARD",
-    {
-      icon: "Presentation",
-      pathname: "/profile-overview",
-      title: "Profile Overview",
-    },
-    {
-      icon: "CalendarRange",
-      pathname: "/profile-overview?page=events",
-      title: "Events",
-    },
-    "COMPONENTS",
-    {
-      icon: "LayoutPanelLeft",
-      title: "Table",
-      subMenu: [
-        {
-          icon: "FlipVertical",
-          pathname: "/regular-table",
-          title: "Regular Table",
-        },
-        {
-          icon: "FlipHorizontal",
-          pathname: "/tabulator",
-          title: "Tabulator",
-        },
-      ],
+      icon: "AlertCircle",
+      pathname: "/reports",
+      title: "Reports",
     },
 
   ],

@@ -56,10 +56,7 @@ const RequireAuth = ({ children }: { children: JSX.Element }) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
     if (isAuthenticated && location.pathname === '/login') {
-        return <Navigate to="/users" state={{ from: location }} replace />;
-    }
-    if (isAuthenticated && location.pathname === '/') {
-        return <Navigate to="/users" state={{ from: location }} replace />;
+        return <Navigate to="/" state={{ from: location }} replace />;
     }
 
     return children;
